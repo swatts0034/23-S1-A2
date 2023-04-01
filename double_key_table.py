@@ -27,7 +27,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
     HASH_BASE = 31
 
-    def __init__(self, sizes=None, internal_sizes=None) -> None:
+    def __init__(self, sizes:list|None=None, internal_sizes:list|None=None) -> None:
         raise NotImplementedError()
 
     def hash1(self, key: K1) -> int:
@@ -62,7 +62,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         """
         Find the correct position for this key in the hash table using linear probing.
 
-        :raises KeyError: When a position can't be found.
+        :raises KeyError: When the key pair is not in the table, but is_insert is False.
         :raises FullError: When a table is full and cannot be inserted.
         """
         raise NotImplementedError()
@@ -145,9 +145,11 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         """
         raise NotImplementedError()
 
-    @property
     def table_size(self) -> int:
-        return len(self.array)
+        """
+        Return the current size of the table (different from the length)
+        """
+        raise NotImplementedError()
 
     def __len__(self) -> int:
         """

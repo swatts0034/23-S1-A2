@@ -74,7 +74,7 @@ class LinearProbeTable(Generic[K, V]):
         :complexity best: O(hash(key)) first position is empty
         :complexity worst: O(hash(key) + N*comp(K)) when we've searched the entire table
                         where N is the tablesize
-        :raises KeyError: When a position can't be found.
+        :raises KeyError: When the key is not in the table, but is_insert is False.
         :raises FullError: When a table is full and cannot be inserted.
         """
         # Initial position
