@@ -1,11 +1,11 @@
 import unittest
 from ed_utils.decorators import number
 
-from data_structures.infinite_hash_table import InfiniteHashTable
+from infinite_hash_table import InfiniteHashTable
 
 class TestInfiniteHash(unittest.TestCase):
 
-    @number("2.1")
+    @number("4.1")
     def test_example(self):
         ih = InfiniteHashTable()
         ih["lin"] = 1
@@ -31,7 +31,7 @@ class TestInfiniteHash(unittest.TestCase):
         self.assertEqual(ih.get_location("linger"), [4, 1, 6, 25])
         self.assertEqual(len(ih), 8)
 
-    @number("2.2")
+    @number("4.2")
     def test_delete(self):
         ih = InfiniteHashTable()
         ih["lin"] = 1

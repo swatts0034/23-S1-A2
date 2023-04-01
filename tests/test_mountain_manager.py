@@ -6,7 +6,7 @@ from mountain_manager import MountainManager
 
 class TestInfiniteHash(unittest.TestCase):
 
-    @number("2.1")
+    @number("5.1")
     def test_example(self):
         m1 = Mountain("m1", 2, 2)
         m2 = Mountain("m2", 2, 9)

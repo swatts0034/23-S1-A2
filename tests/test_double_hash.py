@@ -1,11 +1,11 @@
 import unittest
 from ed_utils.decorators import number
 
-from data_structures.double_key_table import DoubleKeyTable
+from double_key_table import DoubleKeyTable
 
 class TestDoubleHash(unittest.TestCase):
 
-    @number("1.1")
+    @number("3.1")
     def test_example(self):
         """
         See spec sheet image for clarification.
@@ -30,7 +30,7 @@ class TestDoubleHash(unittest.TestCase):
         dt["Het", "Liz"] = 8 # Linear probing on external table
         self.assertEqual(dt._linear_probe("Het", "Liz", False), (2, 2))
 
-    @number("1.2")
+    @number("3.2")
     def test_delete(self):
         # Disable resizing / rehashing.
         dt = DoubleKeyTable(sizes=[12], internal_sizes=[5])
@@ -55,7 +55,7 @@ class TestDoubleHash(unittest.TestCase):
         dt["Tim", "Kat"] = 5
         self.assertEqual(dt._linear_probe("Tim", "Kat", False), (1, 1))
 
-    @number("1.3")
+    @number("3.3")
     def test_resize(self):
         dt = DoubleKeyTable(sizes=[3, 5], internal_sizes=[3, 5])
         dt.hash1 = lambda k: ord(k[0]) % dt.table_size
@@ -76,7 +76,7 @@ class TestDoubleHash(unittest.TestCase):
         self.assertEqual(dt._linear_probe("Tim", "Bob", False), (4, 3))
         self.assertEqual(dt._linear_probe("Pip", "Bob", False), (0, 2))
 
-    @number("1.4")
+    @number("3.4")
     def test_keys_values(self):
         # Disable resizing / rehashing.
         dt = DoubleKeyTable(sizes=[12], internal_sizes=[5])
@@ -98,7 +98,7 @@ class TestDoubleHash(unittest.TestCase):
         self.assertEqual(set(dt.values()), {1, 2, 3, 4, 5, 6, 7, 8})
         self.assertEqual(set(dt.values("Tim")), {1, 6})
 
-    @number("1.5")
+    @number("3.5")
     def test_iters(self):
         # Test that these are actually iterators,
         # and so changing the underlying data structure changes the next value.
