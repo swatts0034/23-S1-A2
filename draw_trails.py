@@ -212,10 +212,11 @@ class TrailDraw:
             for t in range(101)
         ], (0, 0, 0), 1)
 
-    def box_and_action(self, mouse_pos: tuple[float, float], mode=DrawMode, cur_trail: Trail|None=None) -> tuple[Box|None, function|None, Trail|None]:
+    def box_and_action(self, mouse_pos: tuple[float, float], mode=DrawMode, cur_trail: Trail|None=None, parent_sets: tuple[Trail, str]|None=None) -> tuple[Box|None, function|None, Trail|None]:
         if cur_trail is None:
             ref_trail = self.trail
             cur_trail = self.trail.store
+            parent_sets = (self, "trail")
         else:
             ref_trail = cur_trail
             cur_trail = cur_trail.store
@@ -225,9 +226,14 @@ class TrailDraw:
             def func(*m):
                 ref.store = cur_method(*m)
             return func
+        def set_parent(parent_set, cur_method):
+            parent, attribute = parent_set
+            def func(*m):
+                setattr(parent, attribute, cur_method(*m))
+            return func
         if cur_trail is None:
             if mode in [DrawMode.ADD_MOUNTAIN, DrawMode.ADD_BRANCH]:
-                return ref_trail.trail_box, (ref_trail.add_mountain_before if mode == DrawMode.ADD_MOUNTAIN else ref_trail.add_empty_branch_before), cur_trail
+                return ref_trail.trail_box, set_parent(parent_sets, ref_trail.add_mountain_before if mode == DrawMode.ADD_MOUNTAIN else ref_trail.add_empty_branch_before), cur_trail
         elif isinstance(cur_trail, TrailSeries):
             if mouse_pos in cur_trail.before_box and mode in [DrawMode.ADD_MOUNTAIN, DrawMode.ADD_BRANCH]:
                 return cur_trail.before_box, set_m(ref_trail, cur_trail.add_mountain_before if mode == DrawMode.ADD_MOUNTAIN else cur_trail.add_empty_branch_before), cur_trail
@@ -235,15 +241,15 @@ class TrailDraw:
                 return cur_trail.mountain_box, (set_m(ref_trail, cur_trail.remove_mountain) if mode == DrawMode.REMOVE else lambda: cur_trail.mountain), cur_trail
             if mouse_pos in cur_trail.after_box and mode in [DrawMode.ADD_MOUNTAIN, DrawMode.ADD_BRANCH]:
                 return cur_trail.after_box, set_m(ref_trail, cur_trail.add_mountain_after if mode == DrawMode.ADD_MOUNTAIN else cur_trail.add_empty_branch_after), cur_trail
-            return self.box_and_action(mouse_pos, mode, cur_trail.following)
+            return self.box_and_action(mouse_pos, mode, cur_trail.following, (cur_trail, 'following'))
         else:
             if mouse_pos in cur_trail.branch_start_box and mode == DrawMode.REMOVE:
                 return cur_trail.branch_start_box, set_m(ref_trail, cur_trail.remove_branch), cur_trail
             if mouse_pos in cur_trail.branch_end_box and mode == DrawMode.REMOVE:
                 return cur_trail.branch_end_box, set_m(ref_trail, cur_trail.remove_branch), cur_trail
             if mouse_pos in cur_trail.path_bottom.trail_box:
-                return self.box_and_action(mouse_pos, mode, cur_trail.path_bottom)
+                return self.box_and_action(mouse_pos, mode, cur_trail.path_bottom, (cur_trail, 'path_bottom'))
             if mouse_pos in cur_trail.path_top.trail_box:
-                return self.box_and_action(mouse_pos, mode, cur_trail.path_top)
-            return self.box_and_action(mouse_pos, mode, cur_trail.path_follow)
+                return self.box_and_action(mouse_pos, mode, cur_trail.path_top, (cur_trail, 'path_top'))
+            return self.box_and_action(mouse_pos, mode, cur_trail.path_follow, (cur_trail, 'path_follow'))
         return None, None, None
