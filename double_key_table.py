@@ -28,7 +28,12 @@ class DoubleKeyTable(Generic[K1, K2, V]):
     HASH_BASE = 31
 
     def __init__(self, sizes:list|None=None, internal_sizes:list|None=None) -> None:
-        raise NotImplementedError()
+        if sizes is not None:
+            self.TABLE_SIZES = sizes
+        self.size_index = 0
+        self.array: ArrayR[tuple[K, V]] = ArrayR(self.TABLE_SIZES[self.size_index])
+        self.count = 0
+
 
     def hash1(self, key: K1) -> int:
         """
@@ -65,7 +70,34 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         :raises KeyError: When the key pair is not in the table, but is_insert is False.
         :raises FullError: When a table is full and cannot be inserted.
         """
-        raise NotImplementedError()
+        """
+         Find the correct position for this key in the hash table using linear probing.
+         :complexity best: O(hash(key)) first position is empty
+         :complexity worst: O(hash(key) + N*comp(K)) when we've searched the entire table
+                         where N is the tablesize
+         :raises KeyError: When the key is not in the table, but is_insert is False.
+         :raises FullError: When a table is full and cannot be inserted.
+         """
+        # Initial position
+        position = self.hash1(key1)
+
+        for _ in range(self.table_size()):
+            if self.array[position] is None:
+                # Empty spot. Am I upserting or retrieving?
+                if is_insert:
+                    return position
+                else:
+                    raise KeyError(key1)
+            elif self.array[position][0] == key1:
+                return position
+            else:
+                # Taken by something else. Time to linear probe.
+                position = (position + 1) % self.table_size
+
+        if is_insert:
+            raise FullError("Table is full!")
+        else:
+            raise KeyError(key)
 
     def iter_keys(self, key:K1|None=None) -> Iterator[K1|K2]:
         """
@@ -124,8 +156,18 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         """
         Set an (key, value) pair in our hash table.
         """
+        key1 = key[0]
+        key2 = key[1]
 
-        raise NotImplementedError()
+        position = self._linear_probe(key1, key2, True)
+
+        if self.array[position] is None:
+            self.count += 1
+
+        self.array[position] = (key1, data)
+
+        if len(self) > self.table_size() / 2:
+            self._rehash()
 
     def __delitem__(self, key: tuple[K1, K2]) -> None:
         """
@@ -149,13 +191,13 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         """
         Return the current size of the table (different from the length)
         """
-        raise NotImplementedError()
+        return len(self.array)
 
     def __len__(self) -> int:
         """
         Returns number of elements in the hash table
         """
-        raise NotImplementedError()
+        return self.count
 
     def __str__(self) -> str:
         """
@@ -163,4 +205,11 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
         Not required but may be a good testing tool.
         """
-        raise NotImplementedError()
+        result = ""
+        for outer_item in self.array:
+            if outer_item is not None:
+                (o_key, o_value) = outer_item
+                for inner_item in o_value:
+                    (i_key, i_value) = inner_item
+                    result += "(" + str(o_key) + ":" + str(i_key) + "," + str(i_value) + ")\n"
+        return result
