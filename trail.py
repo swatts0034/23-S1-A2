@@ -127,7 +127,42 @@ class Trail:
 
     def follow_path(self, personality: WalkerPersonality) -> None:
         """Follow a path and add mountains according to a personality."""
-        raise NotImplementedError()
+        # Traverse the path
+        next_trail = self.store
+        trail_complete = False
+        follow_paths = ArrayStack(200)
+
+        while trail_complete is not True:
+            # This is a TrailSeries
+            if isinstance(next_trail, TrailSeries):
+                personality.add_mountain(next_trail.mountain)
+                next_trail = next_trail.following.store
+
+            # This is a TrailSplit
+            elif isinstance(next_trail, TrailSplit):
+                # Push the follow path trail onto our stack to use later
+                follow_paths.push(next_trail.path_follow.store)
+
+                # Choose which path to take
+                if personality.select_branch(next_trail.path_top, next_trail.path_bottom) == True:
+                    next_trail = next_trail.path_top.store
+                else:
+                    next_trail = next_trail.path_bottom.store
+
+            # This is a trail instance (or None???)
+            else:
+
+                if next_trail == None:
+                    # If the trail ends here, check if there are any follow paths on our stack
+                    if not follow_paths.is_empty():
+                        next_trail = follow_paths.pop()
+                    else:
+                        # This will be the end and our loop will complete
+                        trail_complete = True
+                else:
+                    # Get the following trail from the store
+                    next_trail = next_trail.store
+
 
 
     def collect_all_mountains(self) -> list[Mountain]:
