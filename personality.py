@@ -35,8 +35,16 @@ class LazyWalker(WalkerPersonality):
         # So just check __class__.__name__ :(
         top_m = top_branch.store.__class__.__name__ == "TrailSeries"
         bot_m = bottom_branch.store.__class__.__name__ == "TrailSeries"
+
+        # if they both have a mountain, take the easiest one
         if top_m and bot_m:
             return top_branch.store.mountain.difficulty_level < bottom_branch.store.mountain.difficulty_level
-        # If one of them has a mountain, don't take it.
+
+        # If only one of them has a mountain, don't take it.
+        if top_m:
+            return False
+        if bot_m:
+            return True
+
         # If neither do, then take the top branch.
-        return not top_m
+        return True
