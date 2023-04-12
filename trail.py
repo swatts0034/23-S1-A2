@@ -67,7 +67,7 @@ class TrailSeries:
 
         """
 
-        return = TrailSplit(Trail(None), Trail(None), Trail(self))
+        return TrailSplit(Trail(None), Trail(None), Trail(self))
 
 
 
@@ -96,7 +96,7 @@ class TrailSeries:
         new_split = Trail(TrailSplit(Trail(None), Trail(None), self.following))
 
         # Put the split into a series along with the mountain
-        return = TrailSeries(self.mountain, new_split)
+        return TrailSeries(self.mountain, new_split)
 
 
 TrailStore = Union[TrailSplit, TrailSeries, None]
@@ -107,23 +107,34 @@ class Trail:
     store: TrailStore = None
 
     def add_mountain_before(self, mountain: Mountain) -> Trail:
-        """Adds a mountain before everything currently in the trail."""
+        """Adds a mountain before everything currently in the trail.
+
+        Parameters: mountain, a new mountain object to add
+
+        Return: Trail, the trail with a new mountain inserted
+
+        """
         # Create a new trail series,
         if self.store is not None:
-            new_trail_series = Trail(TrailSeries(mountain, self.store.following))
+            # If our current trail is not empty
+            return Trail(TrailSeries(mountain, self.store.following))
         else:
-            new_trail_series = Trail(TrailSeries(mountain, Trail(None)))
-
-        return new_trail_series
+            # If our current trail is empty
+            return Trail(TrailSeries(mountain, Trail(None)))
 
     def add_empty_branch_before(self) -> Trail:
-        """Adds an empty branch before everything currently in the trail."""
-        if self.store is not None:
-            new_trail_split = Trail(TrailSplit(Trail(None), Trail(None),self.store.following))
-        else:
-            new_trail_split = Trail(TrailSplit(Trail(None), Trail(None), Trail(None)))
+        """Adds an empty branch before everything currently in the trail.
 
-        return new_trail_split
+        Parameters: None
+        Returns: Trail object
+
+        """
+        if self.store is not None:
+            # If the current trail is not empty
+            return Trail(TrailSplit(Trail(None), Trail(None),self.store.following))
+        else:
+            # The current trail is empty
+            return Trail(TrailSplit(Trail(None), Trail(None), Trail(None)))
 
     def follow_path(self, personality: WalkerPersonality) -> None:
         """Follow a path and add mountains according to a personality."""
